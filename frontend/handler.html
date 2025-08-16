@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handler Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h2>Custody Log</h2>
+  <form id="custodyForm">
+    <input type="text" name="handlerName" placeholder="Your Name" required><br>
+    <input type="text" name="company" placeholder="Company" required><br>
+    <input type="text" name="employeeId" placeholder="Employee ID" required><br>
+    
+    <!-- QR Code Scanner Section -->
+    <div id="qrScanner" style="margin: 20px 0;">
+      <h3>Scan Luggage QR Code</h3>
+      
+      <!-- Camera Access Error Message -->
+      <div id="cameraError" style="display: none; background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #f5c6cb;">
+        <strong>⚠️ Camera Access Restricted</strong><br>
+        Camera access requires HTTPS or localhost. You can manually enter the luggage ID below.
+      </div>
+      
+      <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+      
+      <div style="margin: 15px 0;">
+        <button type="button" id="startScan" class="nav-btn">
+          Start Scanner
+        </button>
+        <button type="button" id="stopScan" class="nav-btn" style="background: linear-gradient(45deg, #ef4444, #dc2626); display: none;">
+          Stop Scanner
+        </button>
+        <button type="button" id="manualEntry" class="nav-btn" style="background: linear-gradient(45deg, #10b981, #059669);">
+          Manual Entry
+        </button>
+      </div>
+      
+      <!-- Manual Entry Section -->
+      <div id="manualEntrySection" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
+        <h4>Enter Luggage ID Manually</h4>
+        <input type="text" id="manualLuggageId" placeholder="Enter Luggage ID (e.g., 16)" style="width: 100%; margin: 10px 0;">
+        <button type="button" id="confirmManualEntry" class="nav-btn" style="background: linear-gradient(45deg, #10b981, #059669);">
+          Confirm Luggage ID
+        </button>
+      </div>
+    </div>
+    
+    <input type="hidden" name="luggageId" id="luggageIdInput" required>
+    <div id="scannedInfo" style="display: none; padding: 10px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; margin: 10px 0;">
+      <strong>Scanned Luggage ID:</strong> <span id="scannedLuggageId"></span>
+    </div>
+    
+    <button type="submit" id="submitBtn" disabled>Submit Custody Log</button>
+  </form>
+  
+  <div id="message"></div>
+  
+  <script src="js/handler.js"></script>
+</body>
+</html>

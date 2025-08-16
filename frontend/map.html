@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luggage Tracking Map - Cargo Tracking</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Luggage Tracking Map</h1>
+    <div id="map"></div>
+    
+    <!-- Navigation buttons -->
+    <div style="text-align: center; margin-top: 20px;">
+      <button onclick="window.history.back()" class="nav-btn">Go Back</button>
+      <button onclick="location.reload()" class="nav-btn">Refresh Map</button>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>

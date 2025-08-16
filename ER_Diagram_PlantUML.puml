@@ -1,0 +1,92 @@
+@startuml Cargo Tracking System ER Diagram
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) <i>x</i>
+
+title Cargo Tracking System - Entity Relationship Diagram
+
+table(USERS) {
+  primary_key(id) : INTEGER AUTOINCREMENT
+  fullname : TEXT
+  email : TEXT UNIQUE
+  password : TEXT
+  role : TEXT
+  company : TEXT
+  employeeId : TEXT
+}
+
+table(VEHICLES) {
+  primary_key(id) : INTEGER AUTOINCREMENT
+  busColor : TEXT
+  busType : TEXT
+  numberPlate : TEXT UNIQUE
+  description : TEXT
+  foreign_key(createdBy) : INTEGER
+  createdAt : TEXT
+}
+
+table(LUGGAGE) {
+  primary_key(id) : INTEGER AUTOINCREMENT
+  foreign_key(senderId) : INTEGER
+  color : TEXT
+  shape : TEXT
+  description : TEXT
+  qrCode : TEXT
+  gpsLat : REAL
+  gpsLng : REAL
+  foreign_key(vehicleId) : INTEGER
+}
+
+table(CUSTODY_LOGS) {
+  primary_key(id) : INTEGER AUTOINCREMENT
+  foreign_key(luggageId) : INTEGER
+  handlerName : TEXT
+  company : TEXT
+  employeeId : TEXT
+  timestamp : TEXT
+}
+
+' Relationships
+USERS ||--o{ LUGGAGE : "creates"
+USERS ||--o{ VEHICLES : "creates"
+VEHICLES ||--o{ LUGGAGE : "carries"
+LUGGAGE ||--o{ CUSTODY_LOGS : "has"
+
+' Foreign key constraints
+LUGGAGE }o--|| USERS : "senderId -> id"
+LUGGAGE }o--|| VEHICLES : "vehicleId -> id"
+VEHICLES }o--|| USERS : "createdBy -> id"
+CUSTODY_LOGS }o--|| LUGGAGE : "luggageId -> id"
+
+note right of USERS
+  **User Roles:**
+  - sender: Can create luggage
+  - handler: Can scan QR codes
+  - Both: Can view tracking data
+end note
+
+note right of VEHICLES
+  **Vehicle Information:**
+  - Unique number plates
+  - Detailed descriptions
+  - Created by authenticated users
+end note
+
+note right of LUGGAGE
+  **Luggage Features:**
+  - Unique QR codes
+  - GPS tracking
+  - Color and shape identification
+  - Vehicle assignment
+end note
+
+note right of CUSTODY_LOGS
+  **Custody Tracking:**
+  - Handler identification
+  - Timestamp recording
+  - Company tracking
+  - Employee verification
+end note
+
+@enduml 

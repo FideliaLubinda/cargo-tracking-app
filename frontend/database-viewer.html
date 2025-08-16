@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Viewer</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .data-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .data-table th, .data-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .data-table th {
+      background-color: #f2f2f2;
+    }
+    .refresh-btn {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .refresh-btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Database Viewer</h1>
+  <p>This page helps you check if data is being stored properly in your database.</p>
+  
+  <button class="refresh-btn" onclick="loadAllData()">Refresh All Data</button>
+  
+  <div class="data-section">
+    <h2>Users</h2>
+    <div id="usersData">Loading...</div>
+  </div>
+  
+  <div class="data-section">
+    <h2>Vehicles</h2>
+    <div id="vehiclesData">Loading...</div>
+  </div>
+  
+  <div class="data-section">
+    <h2>Luggage</h2>
+    <div id="luggageData">Loading...</div>
+  </div>
+  
+  <div class="data-section">
+    <h2>Custody Logs</h2>
+    <div id="custodyData">Loading...</div>
+  </div>
+  
+  <script>
+    const vehicleNames = {
+      '1': 'Bus 1 - Main Route',
+      '2': 'Bus 2 - Express Route',
+      '3': 'Bus 3 - Local Route'
+    };
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        
+        if (users.error) {
+          document.getElementById('usersData').innerHTML = `<p>Error: ${users.error}</p>`;
+          return;
+        }
+        
+        if (users.length === 0) {
+          document.getElementById('usersData').innerHTML = '<p>No users found.</p>';
+          return;
+        }
+        
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Company</th>
+                <th>Employee ID</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        users.forEach(user => {
+          tableHTML += `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.fullname}</td>
+              <td>${user.email}</td>
+              <td>${user.role}</td>
+              <td>${user.company || 'N/A'}</td>
+              <td>${user.employeeId || 'N/A'}</td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += '</tbody></table>';
+        document.getElementById('usersData').innerHTML = tableHTML;
+        
+      } catch (error) {
+        document.getElementById('usersData').innerHTML = `<p>Error loading users: ${error.message}</p>`;
+      }
+    }
+    
+    async function loadLuggage() {
+      try {
+        const response = await fetch('/api/luggage');
+        const luggage = await response.json();
+        
+        if (luggage.error) {
+          document.getElementById('luggageData').innerHTML = `<p>Error: ${luggage.error}</p>`;
+          return;
+        }
+        
+        if (luggage.length === 0) {
+          document.getElementById('luggageData').innerHTML = '<p>No luggage found.</p>';
+          return;
+        }
+        
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Sender ID</th>
+                <th>Vehicle</th>
+                <th>Color</th>
+                <th>Shape</th>
+                <th>Description</th>
+                <th>GPS Lat</th>
+                <th>GPS Lng</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        // Get vehicle information for each luggage
+        for (let item of luggage) {
+          let vehicleInfo = 'N/A';
+          if (item.vehicleId) {
+            try {
+              const vehicleResponse = await fetch(`/api/vehicles/${item.vehicleId}`);
+              if (vehicleResponse.ok) {
+                const vehicle = await vehicleResponse.json();
+                vehicleInfo = `${vehicle.busColor} ${vehicle.busType} (${vehicle.numberPlate})`;
+              } else {
+                vehicleInfo = `Vehicle ID: ${item.vehicleId}`;
+              }
+            } catch (error) {
+              vehicleInfo = `Vehicle ID: ${item.vehicleId}`;
+            }
+          }
+          
+          tableHTML += `
+            <tr>
+              <td>${item.id}</td>
+              <td>${item.senderId}</td>
+              <td>${vehicleInfo}</td>
+              <td><span style="background: ${item.color}; padding: 2px 6px; border-radius: 3px; color: white;">${item.color || 'N/A'}</span></td>
+              <td>${item.shape || 'N/A'}</td>
+              <td>${item.description || 'N/A'}</td>
+              <td>${item.gpsLat || 'N/A'}</td>
+              <td>${item.gpsLng || 'N/A'}</td>
+            </tr>
+          `;
+        }
+        
+        tableHTML += '</tbody></table>';
+        document.getElementById('luggageData').innerHTML = tableHTML;
+        
+      } catch (error) {
+        document.getElementById('luggageData').innerHTML = `<p>Error loading luggage: ${error.message}</p>`;
+      }
+    }
+    
+    async function loadCustodyLogs() {
+      try {
+        const response = await fetch('/api/custody');
+        const logs = await response.json();
+        
+        if (logs.error) {
+          document.getElementById('custodyData').innerHTML = `<p>Error: ${logs.error}</p>`;
+          return;
+        }
+        
+        if (logs.length === 0) {
+          document.getElementById('custodyData').innerHTML = '<p>No custody logs found.</p>';
+          return;
+        }
+        
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Luggage ID</th>
+                <th>Handler Name</th>
+                <th>Company</th>
+                <th>Employee ID</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        logs.forEach(log => {
+          tableHTML += `
+            <tr>
+              <td>${log.id}</td>
+              <td>${log.luggageId}</td>
+              <td>${log.handlerName}</td>
+              <td>${log.company}</td>
+              <td>${log.employeeId}</td>
+              <td>${log.timestamp}</td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += '</tbody></table>';
+        document.getElementById('custodyData').innerHTML = tableHTML;
+        
+      } catch (error) {
+        document.getElementById('custodyData').innerHTML = `<p>Error loading custody logs: ${error.message}</p>`;
+      }
+    }
+    
+    async function loadVehicles() {
+      try {
+        const response = await fetch('/api/vehicles');
+        const vehicles = await response.json();
+        
+        if (vehicles.error) {
+          document.getElementById('vehiclesData').innerHTML = `<p>Error: ${vehicles.error}</p>`;
+          return;
+        }
+        
+        if (vehicles.length === 0) {
+          document.getElementById('vehiclesData').innerHTML = '<p>No vehicles found.</p>';
+          return;
+        }
+        
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Bus Color</th>
+                <th>Bus Type</th>
+                <th>Number Plate</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        vehicles.forEach(vehicle => {
+          tableHTML += `
+            <tr>
+              <td>${vehicle.id}</td>
+              <td>${vehicle.busColor}</td>
+              <td>${vehicle.busType}</td>
+              <td>${vehicle.numberPlate}</td>
+              <td>${vehicle.description || 'N/A'}</td>
+              <td>${vehicle.createdBy}</td>
+              <td>${vehicle.createdAt}</td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += '</tbody></table>';
+        document.getElementById('vehiclesData').innerHTML = tableHTML;
+        
+      } catch (error) {
+        document.getElementById('vehiclesData').innerHTML = `<p>Error loading vehicles: ${error.message}</p>`;
+      }
+    }
+    
+    function loadAllData() {
+      loadUsers();
+      loadVehicles();
+      loadLuggage();
+      loadCustodyLogs();
+    }
+    
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', loadAllData);
+  </script>
+</body>
+</html> 
