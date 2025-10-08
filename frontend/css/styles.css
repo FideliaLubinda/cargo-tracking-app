@@ -26,6 +26,495 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* Admin Dashboard Styles */
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.admin-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.status-indicator {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-indicator.online {
+    background: #10b981;
+    color: white;
+}
+
+.status-indicator.offline {
+    background: #ef4444;
+    color: white;
+}
+
+.admin-nav {
+    background: white;
+    padding: 0 30px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.admin-nav .nav-btn {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    color: #666;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+
+.admin-nav .nav-btn:hover {
+    color: #667eea;
+    background: #f8f9fa;
+}
+
+.admin-nav .nav-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.admin-nav .nav-btn i {
+    margin-right: 8px;
+}
+
+.admin-main {
+    padding: 30px;
+    min-height: 600px;
+}
+
+.admin-section {
+    display: none;
+}
+
+.admin-section.active {
+    display: block;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-content p {
+    color: #666;
+    margin: 5px 0 0 0;
+    font-size: 0.9rem;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.chart-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.chart-card h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+/* Recent Activity */
+.recent-activity {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.recent-activity h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activity-content p {
+    margin: 0;
+    font-weight: 500;
+}
+
+.activity-content small {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #e9ecef;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+}
+
+.btn-small {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin: 0 2px;
+}
+
+.btn-small.btn-danger {
+    background: #ef4444;
+}
+
+.btn-small:hover {
+    opacity: 0.8;
+}
+
+/* Tables */
+.table-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+/* Badges */
+.role-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.role-badge.sender {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.role-badge.handler {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.health-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.health-status.online {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.health-status.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.health-status.offline {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Color Swatch */
+.color-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* System Grid */
+.system-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.system-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.system-card h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.health-indicators, .metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.health-item, .metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.health-item:last-child, .metric:last-child {
+    border-bottom: none;
+}
+
+.health-label, .metric-label {
+    font-weight: 500;
+    color: #64748b;
+}
+
+.metric-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filters select {
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .admin-nav {
+        padding: 0 15px;
+    }
+    
+    .admin-main {
+        padding: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .system-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    table {
+        min-width: 600px;
+    }
+}
+
 /* Header styles */
 h1, h2, h3 {
     color: #2c3e50;
@@ -73,6 +562,13 @@ input:focus, select:focus, textarea:focus {
     transform: translateY(-2px);
 }
 
+/* Make luggage description larger and easier to type */
+textarea#description {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.4;
+}
+
 /* Button styles */
 button {
     background: linear-gradient(45deg, #667eea, #764ba2);
@@ -118,7 +614,6 @@ button:hover::before {
 
 /* Special button styles */
 button.shape-btn {
-    margin-right: 10px;
     background: linear-gradient(45deg, #10b981, #059669);
 }
 
@@ -327,16 +822,57 @@ tr:hover {
     cursor: pointer;
 }
 
+/* Password toggle button styles */
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 8px;
+    color: #666;
+    z-index: 10;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    color: #333;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container input {
+    padding-right: 50px; /* Make space for the toggle button */
+}
+
 .shape-buttons {
     display: flex;
     gap: 10px;
     margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .shape-buttons .shape-btn {
-    flex: 1;
+    flex: 1 1 calc(33.333% - 10px);
     padding: 12px 20px;
     font-size: 14px;
+}
+
+@media (max-width: 420px) {
+    .shape-buttons .shape-btn {
+        flex: 1 1 calc(50% - 10px);
+    }
 }
 
 .vehicle-section {
@@ -393,3 +929,6 @@ tr:hover {
     margin: 10px;
     min-width: 150px;
 }
+
+/* Hide debug log container by default (no noisy logs below QR code) */
+#debug { display: none !important; }

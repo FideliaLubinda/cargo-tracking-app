@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Cargo Tracking</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <h1><i class="fas fa-tachometer-alt"></i> Cargo Tracking Admin Dashboard</h1>
+      <div class="admin-info">
+        <span id="currentTime"></span>
+        <span id="serverStatus" class="status-indicator online">Online</span>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="admin-nav">
+      <button class="nav-btn active" onclick="showSection('overview')">
+        <i class="fas fa-chart-line"></i> Overview
+      </button>
+      <button class="nav-btn" onclick="showSection('users')">
+        <i class="fas fa-users"></i> Users
+      </button>
+      <button class="nav-btn" onclick="showSection('luggage')">
+        <i class="fas fa-suitcase"></i> Luggage
+      </button>
+      <button class="nav-btn" onclick="showSection('custody')">
+        <i class="fas fa-clipboard-list"></i> Custody Logs
+      </button>
+      <button class="nav-btn" onclick="showSection('vehicles')">
+        <i class="fas fa-bus"></i> Vehicles
+      </button>
+      <button class="nav-btn" onclick="showSection('system')">
+        <i class="fas fa-cog"></i> System
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Overview Section -->
+      <section id="overview" class="admin-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+              <h3 id="totalUsers">0</h3>
+              <p>Total Users</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-suitcase"></i></div>
+            <div class="stat-content">
+              <h3 id="totalLuggage">0</h3>
+              <p>Active Luggage</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+            <div class="stat-content">
+              <h3 id="totalCustody">0</h3>
+              <p>Custody Events</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-bus"></i></div>
+            <div class="stat-content">
+              <h3 id="totalVehicles">0</h3>
+              <p>Vehicles</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>User Activity (Last 7 Days)</h3>
+            <canvas id="userActivityChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Luggage Status Distribution</h3>
+            <canvas id="luggageStatusChart"></canvas>
+          </div>
+        </div>
+
+        <div class="recent-activity">
+          <h3>Recent Activity</h3>
+          <div id="recentActivityList" class="activity-list">
+            <!-- Activity items will be populated here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Section -->
+      <section id="users" class="admin-section">
+        <div class="section-header">
+          <h2>User Management</h2>
+          <button class="btn-primary" onclick="exportUsers()">
+            <i class="fas fa-download"></i> Export Users
+          </button>
+        </div>
+        <div class="table-container">
+          <table id="usersTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Company</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Users will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Luggage Section -->
+      <section id="luggage" class="admin-section">
+        <div class="section-header">
+          <h2>Luggage Tracking</h2>
+          <div class="filters">
+            <select id="luggageFilter">
+              <option value="all">All Luggage</option>
+              <option value="withGPS">With GPS</option>
+              <option value="withoutGPS">Without GPS</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-container">
+          <table id="luggageTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Sender</th>
+                <th>Color</th>
+                <th>Shape</th>
+                <th>Vehicle</th>
+                <th>GPS Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="luggageTableBody">
+              <!-- Luggage will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Custody Section -->
+      <section id="custody" class="admin-section">
+        <div class="section-header">
+          <h2>Custody Logs</h2>
+          <button class="btn-primary" onclick="exportCustodyLogs()">
+            <i class="fas fa-download"></i> Export Logs
+          </button>
+        </div>
+        <div class="table-container">
+          <table id="custodyTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Luggage ID</th>
+                <th>Handler</th>
+                <th>Company</th>
+                <th>Employee ID</th>
+                <th>Timestamp</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="custodyTableBody">
+              <!-- Custody logs will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Vehicles Section -->
+      <section id="vehicles" class="admin-section">
+        <div class="section-header">
+          <h2>Vehicle Management</h2>
+          <button class="btn-primary" onclick="addVehicle()">
+            <i class="fas fa-plus"></i> Add Vehicle
+          </button>
+        </div>
+        <div class="table-container">
+          <table id="vehiclesTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Color</th>
+                <th>Type</th>
+                <th>Number Plate</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="vehiclesTableBody">
+              <!-- Vehicles will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- System Section -->
+      <section id="system" class="admin-section">
+        <div class="system-grid">
+          <div class="system-card">
+            <h3>System Health</h3>
+            <div class="health-indicators">
+              <div class="health-item">
+                <span class="health-label">Database</span>
+                <span id="dbStatus" class="health-status online">Connected</span>
+              </div>
+              <div class="health-item">
+                <span class="health-label">API Server</span>
+                <span id="apiStatus" class="health-status online">Running</span>
+              </div>
+              <div class="health-item">
+                <span class="health-label">GPS Devices</span>
+                <span id="gpsStatus" class="health-status warning">1 Active</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <h3>Performance Metrics</h3>
+            <div class="metrics">
+              <div class="metric">
+                <span class="metric-label">Response Time</span>
+                <span id="responseTime" class="metric-value">45ms</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Uptime</span>
+                <span id="uptime" class="metric-value">99.8%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Active Sessions</span>
+                <span id="activeSessions" class="metric-value">12</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+              <button class="btn-secondary" onclick="backupDatabase()">
+                <i class="fas fa-database"></i> Backup DB
+              </button>
+              <button class="btn-secondary" onclick="clearLogs()">
+                <i class="fas fa-trash"></i> Clear Logs
+              </button>
+              <button class="btn-secondary" onclick="restartServer()">
+                <i class="fas fa-redo"></i> Restart Server
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

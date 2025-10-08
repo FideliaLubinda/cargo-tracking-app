@@ -13,6 +13,12 @@
     <input type="text" name="handlerName" placeholder="Your Name" required><br>
     <input type="text" name="company" placeholder="Company" required><br>
     <input type="text" name="employeeId" placeholder="Employee ID" required><br>
+    <input type="text" name="station" placeholder="Station / Terminal (optional)"><br>
+    <input type="text" name="locationNote" placeholder="Location note (e.g., Platform 3) (optional)"><br>
+    <div style="display:flex; gap:8px;">
+      <input type="number" step="any" name="lat" placeholder="Latitude (optional)" style="flex:1;">
+      <input type="number" step="any" name="lng" placeholder="Longitude (optional)" style="flex:1;">
+    </div>
     
     <!-- QR Code Scanner Section -->
     <div id="qrScanner" style="margin: 20px 0;">
@@ -36,6 +42,7 @@
         <button type="button" id="manualEntry" class="nav-btn" style="background: linear-gradient(45deg, #10b981, #059669);">
           Manual Entry
         </button>
+        <a href="#" id="scanImageLink" style="display:inline-block;margin-left:10px;">Scan an Image File</a>
       </div>
       
       <!-- Manual Entry Section -->
@@ -56,7 +63,7 @@
     <button type="submit" id="submitBtn" disabled>Submit Custody Log</button>
   </form>
   
-  <div id="message"></div>
+  <div id="message" aria-live="polite"></div>
   
   <script src="js/handler.js"></script>
 </body>

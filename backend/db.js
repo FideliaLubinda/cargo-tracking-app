@@ -23,6 +23,8 @@ db.serialize(() => {
     gpsLat REAL,
     gpsLng REAL,
     vehicleId INTEGER,
+    busSlot INTEGER,            -- 1..20 position within a vehicle
+    publicId INTEGER UNIQUE,    -- (vehicleId-1)*20 + busSlot
     FOREIGN KEY(senderId) REFERENCES users(id)
   )`);
 
@@ -33,6 +35,10 @@ db.serialize(() => {
     company TEXT,
     employeeId TEXT,
     timestamp TEXT,
+    station TEXT,
+    locationNote TEXT,
+    lat REAL,
+    lng REAL,
     FOREIGN KEY(luggageId) REFERENCES luggage(id)
   )`);
 
@@ -54,6 +60,16 @@ db.serialize(() => {
       console.log('Database schema updated');
     }
   });
+
+  // Add busSlot/publicId columns for systematic IDs (ignore if already exist)
+  db.run(`ALTER TABLE luggage ADD COLUMN busSlot INTEGER`, () => {});
+  db.run(`ALTER TABLE luggage ADD COLUMN publicId INTEGER UNIQUE`, () => {});
+
+  // Backfill new columns on custodyLogs for existing databases (ignore if present)
+  db.run(`ALTER TABLE custodyLogs ADD COLUMN station TEXT`, () => {});
+  db.run(`ALTER TABLE custodyLogs ADD COLUMN locationNote TEXT`, () => {});
+  db.run(`ALTER TABLE custodyLogs ADD COLUMN lat REAL`, () => {});
+  db.run(`ALTER TABLE custodyLogs ADD COLUMN lng REAL`, () => {});
 });
 
 module.exports = db;

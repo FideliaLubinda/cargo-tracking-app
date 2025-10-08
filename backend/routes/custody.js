@@ -4,10 +4,10 @@ const router = express.Router();
 
 // Add custody log
 router.post('/add', (req, res) => {
-  const { luggageId, handlerName, company, employeeId, timestamp } = req.body;
+  const { luggageId, handlerName, company, employeeId, timestamp, station = null, locationNote = null, lat = null, lng = null } = req.body;
   db.run(
-    `INSERT INTO custodyLogs (luggageId, handlerName, company, employeeId, timestamp) VALUES (?, ?, ?, ?, ?)`,
-    [luggageId, handlerName, company, employeeId, timestamp],
+    `INSERT INTO custodyLogs (luggageId, handlerName, company, employeeId, timestamp, station, locationNote, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [luggageId, handlerName, company, employeeId, timestamp, station, locationNote, lat, lng],
     function (err) {
       if (err) return res.status(400).json({ error: err.message });
       res.json({ id: this.lastID });

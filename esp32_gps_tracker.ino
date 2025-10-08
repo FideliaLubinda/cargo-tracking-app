@@ -12,8 +12,12 @@ const char* ssid = "Fifi";           // Change this to your WiFi network name
 const char* password = "01230428";   // Change this to your WiFi password
 
 // Server Configuration - UPDATE THIS TO YOUR COMPUTER'S IP
-const char* serverUrl = "http://172.16.38.171:5000/api/luggage/update-location/";
+const char* serverUrl = "http://172.20.10.2:5000/api/luggage/update-location/";
 const int luggageId = 1; // Change this to match your luggage ID
+
+// Zambia Default Coordinates (Lusaka area)
+const double ZAMBIA_DEFAULT_LAT = -15.3875;  // Lusaka latitude
+const double ZAMBIA_DEFAULT_LNG = 28.3228;   // Lusaka longitude
 
 // ===========================================
 // END CONFIGURATION SECTION
@@ -30,6 +34,10 @@ TinyGPSPlus gps;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 30000; // Update every 30 seconds
 
+// GPS Quality Settings
+const int MIN_SATELLITES = 4;  // Minimum satellites for good GPS fix
+const float MIN_ACCURACY = 10.0; // Minimum accuracy in meters
+
 // LED for status indication
 const int ledPin = 2; // Built-in LED on most ESP32 boards
 
@@ -41,6 +49,7 @@ void setup() {
   digitalWrite(ledPin, LOW);
   
   Serial.println("ESP32 GPS Tracker Starting...");
+  Serial.println("Configured for Zambia location");
   
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -58,6 +67,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   
   Serial.println("Waiting for GPS signal...");
+  Serial.println("Make sure GPS module has clear view of sky");
 }
 
 void loop() {
@@ -71,17 +81,23 @@ void loop() {
   // Check if GPS is working
   if (millis() > 5000 && gps.charsProcessed() < 10) {
     Serial.println("No GPS detected. Check wiring.");
+    Serial.println("Please check:");
+    Serial.println("1. GPS module is connected to pins 16 (RX) and 17 (TX)");
+    Serial.println("2. GPS module is powered (VCC to 3.3V, GND to GND)");
+    Serial.println("3. GPS module has clear view of sky");
     digitalWrite(ledPin, LOW);
     while(true);
   }
   
   // Send GPS data to server periodically
   if (millis() - lastUpdate > updateInterval) {
-    if (gps.location.isValid()) {
+    if (gps.location.isValid() && gps.satellites.value() >= MIN_SATELLITES) {
       sendGPSData();
       lastUpdate = millis();
     } else {
-      Serial.println("GPS location not valid yet...");
+      Serial.println("GPS location not valid yet or insufficient satellites...");
+      Serial.print("Satellites: ");
+      Serial.println(gps.satellites.value());
     }
   }
   
@@ -138,10 +154,19 @@ void sendGPSData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     
-    // Create JSON payload
-    StaticJsonDocument<200> doc;
+    // Create JSON payload with additional GPS quality data
+    StaticJsonDocument<300> doc;
     doc["latitude"] = gps.location.lat();
     doc["longitude"] = gps.location.lng();
+    doc["satellites"] = gps.satellites.value();
+    doc["altitude"] = gps.altitude.meters();
+    doc["speed"] = gps.speed.kmph();
+    doc["timestamp"] = String(gps.date.year()) + "-" + 
+                      String(gps.date.month()) + "-" + 
+                      String(gps.date.day()) + " " +
+                      String(gps.time.hour()) + ":" + 
+                      String(gps.time.minute()) + ":" + 
+                      String(gps.time.second());
     
     String jsonString;
     serializeJson(doc, jsonString);
@@ -168,6 +193,7 @@ void sendGPSData() {
       digitalWrite(ledPin, HIGH);
     } else {
       Serial.println("Error on sending POST: " + http.errorToString(httpResponseCode));
+      Serial.println("Check if your server is running on the correct IP and port");
       // Rapid blink to indicate error
       for(int i = 0; i < 3; i++) {
         digitalWrite(ledPin, LOW);
@@ -196,13 +222,16 @@ void setupWebServer() {
 
 void handleRoot() {
   String html = "<html><body>";
-  html += "<h1>ESP32 GPS Tracker</h1>";
+  html += "<h1>ESP32 GPS Tracker - Zambia</h1>";
   html += "<p>GPS Status: " + String(gps.location.isValid() ? "Valid" : "Invalid") + "</p>";
   html += "<p>Latitude: " + String(gps.location.lat(), 6) + "</p>";
   html += "<p>Longitude: " + String(gps.location.lng(), 6) + "</p>";
   html += "<p>Satellites: " + String(gps.satellites.value()) + "</p>";
+  html += "<p>Altitude: " + String(gps.altitude.meters()) + "m</p>";
+  html += "<p>Speed: " + String(gps.speed.kmph()) + " km/h</p>";
   html += "<p>WiFi: " + WiFi.SSID() + "</p>";
   html += "<p>IP: " + WiFi.localIP().toString() + "</p>";
+  html += "<p>Server: " + String(serverUrl) + String(luggageId) + "</p>";
   html += "</body></html>";
   server.send(200, "text/html", html);
 }

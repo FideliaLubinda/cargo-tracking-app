@@ -61,5 +61,9 @@ app.get('/database-viewer', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/database-viewer.html'));
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/admin-dashboard.html'));
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

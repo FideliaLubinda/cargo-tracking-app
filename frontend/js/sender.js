@@ -2,6 +2,20 @@
 let currentLuggageId = null;
 let currentVehicleId = null;
 
+// Resolve API base so pages opened via 127.0.0.1:5500 still hit backend on 5000
+const API_BASE = (window.location.port && window.location.port !== '5000')
+  ? `${window.location.protocol}//${window.location.hostname}:5000`
+  : '';
+
+async function safeJson(response) {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+  const text = await response.text();
+  throw new Error(text || `Unexpected response (status ${response.status})`);
+}
+
 // Color picker functionality
 document.getElementById('colorInput')?.addEventListener('input', function() {
     const color = this.value;
@@ -35,14 +49,10 @@ document.querySelectorAll('.shape-btn').forEach(btn => {
     });
 });
 
-// Debug function
+// Debug function (UI disabled by default)
 function debugLog(message) {
     console.log(message);
-    const debugDiv = document.getElementById('debug');
-    if (debugDiv) {
-        debugDiv.style.display = 'block';
-        debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-    }
+    // UI logging intentionally disabled to avoid showing logs to end users
 }
 
 // Submit luggage form
@@ -93,18 +103,23 @@ document.getElementById('luggageForm')?.addEventListener('submit', async functio
         
         debugLog('Creating vehicle: ' + JSON.stringify(vehicleData));
         
-        const vehicleRes = await fetch('/api/vehicles/add', {
+        const vehicleRes = await fetch(`${API_BASE}/api/vehicles/add`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(vehicleData)
         });
         
         if (!vehicleRes.ok) {
-            const vehicleError = await vehicleRes.json();
-            throw new Error(`Vehicle creation failed: ${vehicleError.error}`);
+            // Try to extract error text safely
+            try {
+                const vehicleError = await safeJson(vehicleRes);
+                throw new Error(`Vehicle creation failed: ${vehicleError.error || 'Unknown error'}`);
+            } catch (e) {
+                throw new Error(`Vehicle creation failed: ${e.message}`);
+            }
         }
         
-        const vehicleResult = await vehicleRes.json();
+        const vehicleResult = await safeJson(vehicleRes);
         currentVehicleId = vehicleResult.vehicleId;
         debugLog('Vehicle created with ID: ' + currentVehicleId);
         
@@ -119,7 +134,7 @@ document.getElementById('luggageForm')?.addEventListener('submit', async functio
         
         debugLog('Creating luggage: ' + JSON.stringify(luggageData));
         
-        const luggageRes = await fetch('/api/luggage/add', {
+        const luggageRes = await fetch(`${API_BASE}/api/luggage/add`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(luggageData)
@@ -129,7 +144,7 @@ document.getElementById('luggageForm')?.addEventListener('submit', async functio
             throw new Error(`HTTP error! status: ${luggageRes.status}`);
         }
         
-        const luggageResult = await luggageRes.json();
+        const luggageResult = await safeJson(luggageRes);
         debugLog('Luggage response received: ' + JSON.stringify(luggageResult));
         
         if (luggageResult.error) {
@@ -143,6 +158,8 @@ document.getElementById('luggageForm')?.addEventListener('submit', async functio
         
         // Display QR code and success actions
         displayQRCode(luggageResult, vehicleData);
+        // Start polling for custody updates for this luggage
+        startCustodyPolling(currentLuggageId);
         
     } catch (error) {
         debugLog('Error: ' + error.message);
@@ -188,6 +205,11 @@ function displayQRCode(luggageResult, vehicleData) {
                     4. Your luggage will be tracked on ${vehicleData.busColor} ${vehicleData.busType} (${vehicleData.numberPlate})
                 </p>
             </div>
+
+            <div id="custodyStatus" style="background: #f8f9fa; padding: 16px; border-radius: 10px;">
+                <h3>Custody Status</h3>
+                <div id="custodyStatusContent">Waiting for first handler scan...</div>
+            </div>
         </div>
     `;
     
@@ -199,6 +221,37 @@ function displayQRCode(luggageResult, vehicleData) {
     qrDiv.scrollIntoView({ behavior: 'smooth' });
     
     debugLog('QR code displayed successfully');
+}
+
+// Poll custody updates and show latest handler to the sender
+let custodyPollTimer = null;
+function startCustodyPolling(luggageId) {
+    if (custodyPollTimer) clearInterval(custodyPollTimer);
+    const fetchAndRender = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/custody/by-luggage/${luggageId}`);
+            if (!res.ok) return;
+            const logs = await safeJson(res);
+            const container = document.getElementById('custodyStatusContent');
+            if (!container) return;
+            if (!logs || logs.length === 0) {
+                container.textContent = 'No custody logs yet.';
+                return;
+            }
+            const latest = logs[0];
+            const locationStr = [latest.station, latest.locationNote]
+              .filter(Boolean)
+              .join(' — ');
+            const latlngStr = (latest.lat != null && latest.lng != null)
+              ? ` (${Number(latest.lat).toFixed(5)}, ${Number(latest.lng).toFixed(5)})`
+              : '';
+            container.innerHTML = `Handled by <strong>${latest.handlerName}</strong> (${latest.company}, ID: ${latest.employeeId}) at <strong>${new Date(latest.timestamp).toLocaleString()}</strong>${locationStr ? `<br><em>${locationStr}${latlngStr}</em>` : ''}`;
+        } catch (_) {
+            // ignore
+        }
+    };
+    fetchAndRender();
+    custodyPollTimer = setInterval(fetchAndRender, 5000);
 }
 
 // View on map function

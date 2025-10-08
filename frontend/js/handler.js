@@ -2,6 +2,11 @@ let html5QrcodeScanner = null;
 let scannedLuggageId = null;
 let scannedVehicleId = null;
 
+// Resolve API base so camera page served from file/5500 can reach backend on 5000
+const API_BASE = (window.location.port && window.location.port !== '5000')
+  ? `${window.location.protocol}//${window.location.hostname}:5000`
+  : '';
+
 // Initialize QR code scanner
 function initQRScanner() {
   const config = {
@@ -165,6 +170,33 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Confirm manual entry button
   document.getElementById('confirmManualEntry').addEventListener('click', confirmManualEntry);
+
+  // Scan image file fallback
+  const scanImageLink = document.getElementById('scanImageLink');
+  if (scanImageLink) {
+    scanImageLink.addEventListener('click', async function(e) {
+      e.preventDefault();
+      try {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.onchange = async () => {
+          const file = fileInput.files && fileInput.files[0];
+          if (!file) return;
+          try {
+            const html5Qr = new Html5Qrcode(/* element id not needed for file scan */ 'reader');
+            const result = await html5Qr.scanFile(file, true);
+            onScanSuccess(result);
+          } catch (err) {
+            showMessage('Failed to read QR from image. Try another image.', 'error');
+          }
+        };
+        fileInput.click();
+      } catch (_) {
+        showMessage('Image scanning is not supported on this device.', 'error');
+      }
+    });
+  }
   
   // Form submission
   document.getElementById('custodyForm').addEventListener('submit', async function(e) {
@@ -177,11 +209,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const data = Object.fromEntries(new FormData(this));
     data.timestamp = new Date().toISOString();
+
+    // Ensure numeric fields are numbers or undefined
+    if (data.lat === '') delete data.lat; else data.lat = Number(data.lat);
+    if (data.lng === '') delete data.lng; else data.lng = Number(data.lng);
     
     console.log('Submitting custody log:', data);
     
     try {
-      const res = await fetch('/api/custody/add', {
+      const res = await fetch(`${API_BASE}/api/custody/add`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
